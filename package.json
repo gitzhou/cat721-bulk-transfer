@@ -32,7 +32,12 @@
     "typescript-eslint": "^8.16.0"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
     "@cat-protocol/cat-sdk": "^1.0.4",
-    "dotenv": "^16.4.5"
+    "axios": "^1.7.8",
+    "bitcoinjs-lib": "^7.0.0-rc.0",
+    "dotenv": "^16.4.5",
+    "ecpair": "^2.1.0",
+    "scrypt-ts": "^1.4.3"
   }
 }
