@@ -8,3 +8,11 @@ export interface Source {
   nftUtxo?: Cat721Utxo | null;
   signer?: Signer;
 }
+
+export interface CollectionInfo {
+  minterAddr: string;
+  metadata: {
+    name: string;
+    symbol: string;
+  };
+}

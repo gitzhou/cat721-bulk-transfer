@@ -2,13 +2,13 @@
   "name": "cat721-bulk-transfer",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "bin": {
+    "cat721-bulk-transfer": "./dist/src/index.js"
+  },
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "rimraf dist && npm run lint && tsc",
     "test": "npm run build && jest",
-    "lint": "eslint \"{src,test}/**/*.ts\" --fix",
-    "start": "npm run build && node dist/src/index.js"
+    "lint": "eslint \"{src,test}/**/*.ts\" --fix"
   },
   "keywords": [],
   "author": "",
@@ -36,7 +36,7 @@
     "@cat-protocol/cat-sdk": "^1.0.4",
     "axios": "^1.7.8",
     "bitcoinjs-lib": "^7.0.0-rc.0",
-    "dotenv": "^16.4.5",
+    "commander": "^12.1.0",
     "ecpair": "^2.1.0",
     "scrypt-ts": "^1.4.3"
   }

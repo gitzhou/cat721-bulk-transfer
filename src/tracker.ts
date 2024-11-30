@@ -1,9 +1,13 @@
 import { Cat721Utxo } from '@cat-protocol/cat-sdk';
 import axios from 'axios';
+import { CollectionInfo } from './types';
 
-export async function getCollectionInfo(collectionId: string) {
+export async function getCollectionInfo(
+  host: string,
+  collectionId: string,
+): Promise<CollectionInfo | null> {
   try {
-    const url = `${process.env.TRACKER_HOST}/api/collections/${collectionId}`;
+    const url = `${host}/api/collections/${collectionId}`;
     const response = await axios.get(url);
     console.assert(response.data.code === 0);
     return response.data.data;
@@ -13,11 +17,12 @@ export async function getCollectionInfo(collectionId: string) {
 }
 
 export async function getNftUtxo(
+  host: string,
   collectionId: string,
   localId: string,
 ): Promise<Cat721Utxo | null> {
   try {
-    const url = `${process.env.TRACKER_HOST}/api/collections/${collectionId}/localId/${localId}/utxo`;
+    const url = `${host}/api/collections/${collectionId}/localId/${localId}/utxo`;
     const response = await axios.get(url);
     console.assert(response.data.code === 0);
     const utxo = response.data.data.utxo;
