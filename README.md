@@ -1,5 +1,8 @@
 # cat721-bulk-transfer
 
+[![build](https://github.com/gitzhou/cat721-bulk-transfer/actions/workflows/build.yml/badge.svg)](https://github.com/gitzhou/cat721-bulk-transfer/actions/workflows/build.yml)
+![NPM Version](https://img.shields.io/npm/v/cat721-bulk-transfer)
+
 A tiny CLI tool to bulk transfer CAT-721 NFTs:
 
 - Read transfer details from a CSV file.
@@ -8,13 +11,13 @@ A tiny CLI tool to bulk transfer CAT-721 NFTs:
 
 ## Installation
 
-```bash
+```
 $ npm install -g cat721-bulk-transfer
 ```
 
 ## Usage
 
-```bash
+```
 $ cat721-bulk-transfer -h
 Usage: cat721-bulk-transfer [options]
 
@@ -32,8 +35,8 @@ Options:
 
 ## Source file format
 
-```plain
-<NFT from address>,<from address WIF>,<NFT local id>,<NFT to address>
-<NFT from address>,<from address WIF>,<NFT local id>,<NFT to address>
+```
+<NFT owner address>,<owner address WIF>,<NFT local id to send>,<NFT receiver address>
+<NFT owner address>,<owner address WIF>,<NFT local id to send>,<NFT receiver address>
 ...
 ```
