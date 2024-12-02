@@ -21,114 +21,114 @@ import { ECPairFactory } from 'ecpair';
 initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
 
-(async () => {
-  program
-    .name('cat721-bulk-transfer')
-    .description('Bulk transfer CAT-721 NFTs')
-    .version('1.0.0')
-    .requiredOption('-s, --source-file <source-file>', 'source file path')
-    .requiredOption('-c, --collection-id <collection-id>', 'NFT collection ID')
-    .requiredOption(
-      '-t, --tracker-host <tracker-host>',
-      'tracker host, e.g. http://127.0.0.1:3000',
-    )
-    .requiredOption(
-      '-f, --fee-rate <fee-rate>',
-      'fee rate in sat/vB that used for the transfer',
-      (value) => Number(value),
-      1,
-    )
-    .requiredOption('-w, --fee-wif <wif>', 'WIF that provides transfer fees')
-    .showHelpAfterError('(add --help for additional information)')
-    .allowUnknownOption(false)
-    .parse();
-  const { sourceFile, collectionId, trackerHost, feeRate, feeWif } =
-    program.opts();
-  const network = 'fractal-mainnet';
+program
+  .name('cat721-bulk-transfer')
+  .description('Bulk transfer CAT-721 NFTs')
+  .version('1.0.0')
+  .requiredOption('-s, --source-file <source-file>', 'source file path')
+  .requiredOption('-c, --collection-id <collection-id>', 'NFT collection ID')
+  .requiredOption(
+    '-t, --tracker-host <tracker-host>',
+    'tracker host, e.g. http://127.0.0.1:3000',
+  )
+  .requiredOption(
+    '-f, --fee-rate <fee-rate>',
+    'fee rate in sat/vB that used for the transfer',
+    (value) => Number(value),
+    1,
+  )
+  .requiredOption('-w, --fee-wif <wif>', 'WIF that provides transfer fees')
+  .showHelpAfterError('(add --help for additional information)')
+  .allowUnknownOption(false)
+  .action(async (options) => {
+    const { sourceFile, collectionId, trackerHost, feeRate, feeWif } = options;
+    const network = 'fractal-mainnet';
 
-  // load collection info
-  const collectionInfo = await getCollectionInfo(trackerHost, collectionId);
-  if (!collectionInfo) {
-    console.log(`exit: collection ${collectionId} not found`);
-    return;
-  }
-  console.log(`collection: ${collectionId}`);
-  console.log(`  name: ${collectionInfo.metadata.name}`);
-  console.log(`  symbol: ${collectionInfo.metadata.symbol}`);
-  console.log(`  minterAddr: ${collectionInfo.minterAddr}`);
+    // load collection info
+    const collectionInfo = await getCollectionInfo(trackerHost, collectionId);
+    if (!collectionInfo) {
+      console.log(`exit: collection ${collectionId} not found`);
+      return;
+    }
+    console.log(`collection: ${collectionId}`);
+    console.log(`  name: ${collectionInfo.metadata.name}`);
+    console.log(`  symbol: ${collectionInfo.metadata.symbol}`);
+    console.log(`  minterAddr: ${collectionInfo.minterAddr}`);
 
-  // load fee signer
-  const feeSigner = loadFeeSigner(feeWif);
-  const feeAddress = await feeSigner.getAddress();
-  console.log(`fee address: ${feeAddress}`);
-  // check fee balance
-  const utxoProvider = new MempoolUtxoProvider(network);
-  const feeUtxos = await utxoProvider.getUtxos(feeAddress);
-  console.log(`fee utxos: ${feeUtxos.length}`);
-  const feeBalance = feeUtxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
-  console.log(`fee balance: ${feeBalance}`);
-  if (feeBalance <= 0) {
-    console.log('exit: insufficient fee balance');
-    return;
-  }
+    // load fee signer
+    const feeSigner = loadFeeSigner(feeWif);
+    const feeAddress = await feeSigner.getAddress();
+    console.log(`fee address: ${feeAddress}`);
+    // check fee balance
+    const utxoProvider = new MempoolUtxoProvider(network);
+    const feeUtxos = await utxoProvider.getUtxos(feeAddress);
+    console.log(`fee utxos: ${feeUtxos.length}`);
+    const feeBalance = feeUtxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
+    console.log(`fee balance: ${feeBalance}`);
+    if (feeBalance <= 0) {
+      console.log('exit: insufficient fee balance');
+      return;
+    }
 
-  // load sources, query nft UTXOs, and prepare signers
-  const sources = loadSources(sourceFile);
-  console.log(`source lines: ${sources.length}`);
-  await prepareSources(sources, trackerHost, collectionId);
-  const nftUtxosLoaded = sources.reduce(
-    (acc, source) => acc + (source.nftUtxo ? 1 : 0),
-    0,
-  );
-  console.log(`nft utxos loaded: ${nftUtxosLoaded}`);
-  if (nftUtxosLoaded === 0) {
-    console.log('exit: no nft utxos loaded');
-    return;
-  }
+    // load sources, query nft UTXOs, and prepare signers
+    const sources = loadSources(sourceFile);
+    console.log(`source lines: ${sources.length}`);
+    await prepareSources(sources, trackerHost, collectionId);
+    const nftUtxosLoaded = sources.reduce(
+      (acc, source) => acc + (source.nftUtxo ? 1 : 0),
+      0,
+    );
+    console.log(`nft utxos loaded: ${nftUtxosLoaded}`);
+    if (nftUtxosLoaded === 0) {
+      console.log('exit: no nft utxos loaded');
+      return;
+    }
 
-  // split fees
-  const vbytesTotal = 2900;
-  const bulletSatoshis = vbytesTotal * feeRate;
-  const chainProvider = new MempolChainProvider(network);
-  const feeSplitTx = await splitFees(
-    feeUtxos,
-    BigInt(bulletSatoshis),
-    nftUtxosLoaded,
-    feeRate,
-    feeSigner,
-    chainProvider,
-  );
+    // split fees
+    const vbytesTotal = 2900;
+    const bulletSatoshis = vbytesTotal * feeRate;
+    const chainProvider = new MempolChainProvider(network);
+    const feeSplitTx = await splitFees(
+      feeUtxos,
+      BigInt(bulletSatoshis),
+      nftUtxosLoaded,
+      feeRate,
+      feeSigner,
+      chainProvider,
+    );
 
-  // wait for fee split tx confirmation
-  console.log(`split fees: ${feeSplitTx.extractTransaction().getId()}`);
-  await waitTxConfirmation(
-    feeSplitTx.extractTransaction().getId(),
-    chainProvider,
-  );
+    // wait for fee split tx confirmation
+    console.log(`split fees: ${feeSplitTx.extractTransaction().getId()}`);
+    await waitTxConfirmation(
+      feeSplitTx.extractTransaction().getId(),
+      chainProvider,
+    );
 
-  // transfer NFTs
-  console.log('fees are confirmed and now transfer:');
-  await Promise.all(
-    sources.map((source, i) => {
-      return transferNft(
-        source,
-        collectionInfo.minterAddr,
-        feeSigner,
-        {
-          txId: feeSplitTx.extractTransaction().getId(),
-          outputIndex: i,
-          satoshis: bulletSatoshis,
-          script: Buffer.from(
-            feeSplitTx.extractTransaction().outs[i].script,
-          ).toString('hex'),
-        },
-        feeRate,
-        utxoProvider,
-        chainProvider,
-      );
-    }),
-  );
-})();
+    // transfer NFTs
+    console.log('fees are confirmed and now transfer:');
+    await Promise.all(
+      sources.map((source, i) => {
+        return transferNft(
+          source,
+          collectionInfo.minterAddr,
+          feeSigner,
+          {
+            txId: feeSplitTx.extractTransaction().getId(),
+            outputIndex: i,
+            satoshis: bulletSatoshis,
+            script: Buffer.from(
+              feeSplitTx.extractTransaction().outs[i].script,
+            ).toString('hex'),
+          },
+          feeRate,
+          utxoProvider,
+          chainProvider,
+        );
+      }),
+    );
+  });
+
+program.parse(process.argv);
 
 function loadFeeSigner(wif: string): DefaultSigner {
   try {
@@ -262,6 +262,10 @@ async function transferNft(
   chainProvider: ChainProvider,
 ) {
   try {
+    if (!source.nftUtxo) {
+      console.log(`  ${source.localId}: [failed] nft utxo not loaded`);
+      return;
+    }
     const { sendTx } = await transfer(
       source.nftUtxo!,
       minterAddr,

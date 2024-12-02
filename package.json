@@ -1,7 +1,7 @@
 {
   "name": "cat721-bulk-transfer",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "CLI tool that bulk transfers CAT-721 NFTs",
   "bin": {
     "cat721-bulk-transfer": "./dist/src/index.js"
   },
@@ -10,9 +10,9 @@
     "test": "npm run build && jest",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["cat721", "bulk", "transfer"],
+  "author": "Aaron",
+  "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@types/jest": "^29.5.14",
