@@ -17,14 +17,17 @@ import { initEccLib, Psbt } from 'bitcoinjs-lib';
 import { transfer } from './cat721';
 import * as ecc from '@bitcoinerlab/secp256k1';
 import { ECPairFactory } from 'ecpair';
-
+import { version } from '../package.json';
 initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
 
 program
   .name('cat721-bulk-transfer')
   .description('Bulk transfer CAT-721 NFTs')
-  .version('1.0.0')
+  .option('-v, --version', 'output the version number', () => {
+    console.log(`${version}`);
+    process.exit(0);
+  })
   .requiredOption('-s, --source-file <source-file>', 'source file path')
   .requiredOption('-c, --collection-id <collection-id>', 'NFT collection ID')
   .requiredOption(
@@ -33,7 +36,7 @@ program
   )
   .requiredOption(
     '-f, --fee-rate <fee-rate>',
-    'fee rate in sat/vB that used for the transfer',
+    'fee rate in sat/vB that is used for the transfer',
     (value) => Number(value),
     1,
   )

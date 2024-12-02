@@ -1,6 +1,6 @@
 {
   "name": "cat721-bulk-transfer",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "CLI tool that bulk transfers CAT-721 NFTs",
   "bin": {
     "cat721-bulk-transfer": "./dist/src/index.js"
